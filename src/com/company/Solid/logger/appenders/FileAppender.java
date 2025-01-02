@@ -22,7 +22,7 @@ public class FileAppender extends  AppenderImpl {
     @Override
     public void append(String time, String message, ReportLevel reportLevel) {
         if (this.file == null) throw new NullPointerException("No set file!");
-        if (super.canAppend(reportLevel)) {
+        if (this.canAppend(reportLevel)) {
             super.increaseMessageCount();
             this.file.append(super.getLayout().format(time, message, reportLevel));
             this.file.write();

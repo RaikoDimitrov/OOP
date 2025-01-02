@@ -39,8 +39,19 @@ public class MessageLogger implements Logger {
         log(time, message, ReportLevel.FATAL);
     }
 
-    private void log(String time, String message, ReportLevel reportLevel) {
+    public void log(String time, String message, ReportLevel reportLevel) {
         Arrays.stream(appenders).forEach(appender -> appender.append(time, message, reportLevel));
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Logger Info");
+        sb.append(System.lineSeparator());
+        for (Appender appender : appenders) {
+            sb.append(appender);
+            sb.append(System.lineSeparator());
+        }
+
+        return sb.toString();
+    }
 }

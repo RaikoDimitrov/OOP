@@ -12,7 +12,7 @@ public class ConsoleAppender extends AppenderImpl {
 
     @Override
     public void append(String time, String message, ReportLevel reportLevel) {
-        if (super.canAppend(reportLevel)) {
+        if (this.canAppend(reportLevel)) {
             super.increaseMessageCount();
             System.out.println(super.getLayout().format(time, message, reportLevel));
         }

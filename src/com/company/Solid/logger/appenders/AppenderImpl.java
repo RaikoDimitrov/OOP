@@ -13,24 +13,19 @@ public abstract class AppenderImpl implements Appender {
     private int messageCount;
 
     public AppenderImpl(Layout layout) {
-        this.layout = layout;
-        this.reportLevel = DEFAULT_REPORT_LEVEL;
+        this(layout, DEFAULT_REPORT_LEVEL);
     }
 
     public AppenderImpl(Layout layout, ReportLevel reportLevel) {
         this.layout = layout;
         this.reportLevel = reportLevel;
+        this.messageCount = 0;
     }
 
     @Override
     public abstract void append(String time, String message, ReportLevel reportLevel);
 
-    @Override
-    public void setReportLevel(ReportLevel reportLevel) {
-        this.reportLevel = reportLevel;
-    }
-
-    protected boolean canAppend(ReportLevel reportLevel) {
+    public boolean canAppend(ReportLevel reportLevel) {
         return this.reportLevel.ordinal() <= reportLevel.ordinal();
     }
 
@@ -49,5 +44,10 @@ public abstract class AppenderImpl implements Appender {
 
     protected Layout getLayout() {
         return layout;
+    }
+
+    @Override
+    public void setReportLevel(ReportLevel reportLevel) {
+        this.reportLevel = reportLevel;
     }
 }

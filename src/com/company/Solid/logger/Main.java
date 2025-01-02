@@ -2,22 +2,46 @@ package com.company.Solid.logger;
 
 import com.company.Solid.logger.appenders.ConsoleAppender;
 import com.company.Solid.logger.appenders.FileAppender;
-import com.company.Solid.logger.interfaces.Appender;
-import com.company.Solid.logger.interfaces.Layout;
-import com.company.Solid.logger.interfaces.Logger;
+import com.company.Solid.logger.controllers.EngineImpl;
+import com.company.Solid.logger.controllers.InputParser;
+import com.company.Solid.logger.enums.ReportLevel;
+import com.company.Solid.logger.factories.LoggerFactory;
+import com.company.Solid.logger.interfaces.*;
 import com.company.Solid.logger.layouts.SimpleLayout;
+import com.company.Solid.logger.layouts.XmlLayout;
 import com.company.Solid.logger.logFiles.LogFile;
 import com.company.Solid.logger.loggers.MessageLogger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 
 public class Main {
-    public static void main(String[] args) {
-        Layout simpleLayout = new SimpleLayout();
+
+    private static final BufferedReader READER = new BufferedReader(new InputStreamReader(System.in));
+    private static final Factory<Logger> LOGGER_FACTORY = new LoggerFactory();
+
+    public static void main(String[] args) throws IOException {
+
+        //using factory pattern and controllers
+        InputParser inputParser = new InputParser();
+        Logger logger = LOGGER_FACTORY.produce(inputParser.createLoggerInfo(READER));
+        Engine engine = new EngineImpl(logger);
+        engine.run("END", READER);
+
+        System.out.println(logger);
+
+       /* Layout simpleLayout = new SimpleLayout();
         Appender consoleAppender = new ConsoleAppender(simpleLayout);
+        consoleAppender.setReportLevel(ReportLevel.ERROR);
         Logger logger = new MessageLogger(consoleAppender);
-        logger.logError("3/26/2015 2:08:11 PM", "Error parsing JSON.");
+        logger.logWarning("3/31/2015 5:33:07 PM", "Warning: ping is too high - disconnect imminent");
         logger.logInfo("3/26/2015 2:08:11 PM", "User Pesho successfully registered.");
-        System.out.println(consoleAppender);
+        logger.logError("3/26/2015 2:08:11 PM", "Error parsing JSON.");
+        logger.logCritical("3/31/2015 5:33:07 PM", "No connection string found in App.config");
+        logger.logFatal("3/31/2015 5:33:07 PM", "mscorlib.dll does not respond");
+        System.out.println(logger);
 
         LogFile file = new LogFile();
         Appender fileAppender = new FileAppender(simpleLayout);
@@ -26,5 +50,14 @@ public class Main {
         fileLogger.logWarning("3/26/2015 2:08:11 PM", "Warning parsing JSON.");
         fileLogger.logInfo("3/26/2015 2:08:11 PM", "User Pesho successfully registered.");
         System.out.println(fileAppender + System.lineSeparator() + file.getPathAndName());
+        System.out.println();
+
+        Layout xmlLayout = new XmlLayout();
+        Appender xmlAppender = new ConsoleAppender(xmlLayout);
+        Logger xmlLogger = new MessageLogger(xmlAppender);
+        xmlLogger.logFatal("3/31/2015 5:23:54 PM", "mscorlib.dll does not respond");
+        xmlLogger.logCritical("3/31/2015 5:23:54 PM", "No connection string found in App.config");*/
+
+
     }
 }

@@ -10,16 +10,16 @@ import java.util.Collections;
 public class LogFile implements File {
     private final StringBuilder text;
     private static final String DEFAULT_PATH_AND_NAME = System.getProperty("user.dir") + "\\src\\com\\company\\Solid\\logger\\" + "/output.txt";
-    private int size;
+    private final int size;
     private String pathAndName;
 
     public LogFile() {
-        this.text = new StringBuilder();
-        this.pathAndName = DEFAULT_PATH_AND_NAME;
+        this(DEFAULT_PATH_AND_NAME);
     }
 
     public LogFile(String pathAndName) {
-        this();
+        this.text = new StringBuilder();
+        this.size = 0;
         this.pathAndName = pathAndName;
     }
 
@@ -35,14 +35,15 @@ public class LogFile implements File {
 
     @Override
     public int getSize() {
-        return  calculateSize();
+        return this.calculateSize();
     }
 
     private int calculateSize() {
+        int size = 0;
         for (char symbol : this.text.toString().toCharArray()) {
-            if (Character.isAlphabetic(symbol)) this.size += symbol;
+            if (Character.isAlphabetic(symbol)) size += symbol;
         }
-        return this.size;
+        return size;
     }
 
     @Override
