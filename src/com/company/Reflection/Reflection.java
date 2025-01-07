@@ -3,13 +3,14 @@ package com.company.Reflection;
 import java.io.Serializable;
 
 public class Reflection implements Serializable {
-    private static final String nickName = "Pinguin";
+
+    private static final String nickName = "Penguin";
     public String name;
     protected String webAddress;
     String email;
     private int zip;
 
-    private Reflection() {
+    public Reflection() {
         this.setName("Java");
         this.setWebAddress("oracle.com");
         this.setEmail("mail@oracle.com");
