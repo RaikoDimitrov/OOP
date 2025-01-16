@@ -1,8 +1,8 @@
 package UnitTesting.classes;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class AxeTest {
@@ -21,15 +21,15 @@ public class AxeTest {
         //act
         axe.attack(dummy);
         //assert
-        Assert.assertEquals(9, axe.getDurabilityPoints());
+        assertEquals(9, axe.getDurabilityPoints());
     }
 
-    @Test(expected = IllegalStateException.class) //assert
+    @Test
     public void testThatBrokenAxeCantAttack() {
-        //arrange
-        Axe brokenAxe = new Axe(10, 0);
-        //act
-        brokenAxe.attack(dummy);
+        assertThrows(IllegalStateException.class, () -> {
+            Axe brokenAxe = new Axe(10, 0);
+            brokenAxe.attack(dummy);
+        });
     }
 
 }
