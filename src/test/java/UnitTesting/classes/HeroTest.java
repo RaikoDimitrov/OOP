@@ -1,7 +1,7 @@
 package UnitTesting.classes;
 
-import UnitTesting.interfaces.Target;
-import UnitTesting.interfaces.Weapon;
+import UnitTesting.classes.interfaces.Target;
+import UnitTesting.classes.interfaces.Weapon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

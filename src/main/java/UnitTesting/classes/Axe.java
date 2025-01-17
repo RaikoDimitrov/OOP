@@ -1,7 +1,7 @@
 package UnitTesting.classes;
 
-import UnitTesting.interfaces.Target;
-import UnitTesting.interfaces.Weapon;
+import UnitTesting.classes.interfaces.Target;
+import UnitTesting.classes.interfaces.Weapon;
 
 public class Axe implements Weapon {
     private final int attackPoints;

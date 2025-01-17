@@ -1,4 +1,4 @@
-package UnitTesting.interfaces;
+package UnitTesting.classes.interfaces;
 
 public interface Target {
     int getHealth();

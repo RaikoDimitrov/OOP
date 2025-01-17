@@ -1,6 +1,6 @@
 package UnitTesting.classes;
 
-import UnitTesting.interfaces.Target;
+import UnitTesting.classes.interfaces.Target;
 
 public class Dummy implements Target {
 
