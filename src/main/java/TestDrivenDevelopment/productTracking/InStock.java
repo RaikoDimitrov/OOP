@@ -56,8 +56,8 @@ public class InStock implements ProductStock {
 
     @Override
     public Iterable<Product> findFirstByAlphabeticalOrder(int count) {
-        List<Product> productList = new ArrayList<>(this.products.values());
-        return productList.stream()
+        if (count <= 0 || count > this.products.size()) return new TreeSet<>();
+        return this.products.values().stream()
                 .limit(count)
                 .sorted(Comparator.comparing(Product::getLabel))
                 .collect(Collectors.toList());

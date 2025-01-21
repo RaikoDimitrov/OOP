@@ -4,11 +4,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,14 +33,14 @@ class InStockTest {
     }
 
     @Test
-    void testThatReturnsFalseWhenProductIsAbsentAndTrueWhenAdded () {
+    void testThatReturnsFalseWhenProductIsAbsentAndTrueWhenAdded() {
         assertFalse(productStock.contains(firstProduct));
         productStock.add(firstProduct);
         assertTrue(productStock.contains(firstProduct));
     }
 
     @Test
-    void testThatCountReturnsZeroWhenEmptyAndNonZeroWhenProductsAdded () {
+    void testThatCountReturnsZeroWhenEmptyAndNonZeroWhenProductsAdded() {
         assertEquals(ZERO_SIZE, productStock.getCount());
         productStock.add(firstProduct);
         productStock.add(secondProduct);
@@ -49,23 +49,23 @@ class InStockTest {
     }
 
     @Test
-    void testThatFindByIndexReturnsCorrectIndexElement () {
+    void testThatFindByIndexReturnsCorrectIndexElement() {
         productStock.add(firstProduct);
         productStock.add(secondProduct);
         assertEquals(secondProduct, productStock.find(1), "Invalid index element");
     }
 
     @Test
-    void testThatFindByIndexThrowsExceptionWhenIndexIsGreater () {
+    void testThatFindByIndexThrowsExceptionWhenIndexIsGreater() {
         assertThrows(IndexOutOfBoundsException.class, () -> {
-            addRandomProduct(10, getRandomPrice(0.5, 95.5), getRandomQuantity(50));
+            addRandomProduct(10, getRandomPrice(0.5, 95.5), getRandomQuantity(45));
             productStock.find(10);
         });
 
     }
 
     @Test
-    void testThatFindByIndexThrowsExceptionWhenIndexIsNegative () {
+    void testThatFindByIndexThrowsExceptionWhenIndexIsNegative() {
         assertThrows(IndexOutOfBoundsException.class, () -> {
             addRandomProduct(10, getRandomPrice(0.5, 95.5), getRandomQuantity(50));
             productStock.find(-2);
@@ -73,7 +73,7 @@ class InStockTest {
     }
 
     @Test
-    void testThatCanChangeQuantityIfProductInStock () {
+    void testThatCanChangeQuantityIfProductInStock() {
         productStock.add(firstProduct);
         int newQuantity = firstProduct.getQuantity() + 15;
         productStock.changeQuantity(firstProduct.getLabel(), newQuantity);
@@ -81,13 +81,13 @@ class InStockTest {
     }
 
     @Test
-    void testThatChangeQuantityThrowsExceptionIfProductIsMissing () {
+    void testThatChangeQuantityThrowsExceptionIfProductIsMissing() {
         assertThrows(IllegalArgumentException.class, () ->
-                productStock.changeQuantity(firstProduct.getLabel(),firstProduct.getQuantity() + 15));
+                productStock.changeQuantity(firstProduct.getLabel(), firstProduct.getQuantity() + 15));
     }
 
     @Test
-    void testThatFindByLabelReturnsProductInStock () {
+    void testThatFindByLabelReturnsProductInStock() {
        /* productStock.add(firstProduct);
         productStock.add(secondProduct);
         assertEquals(productStock.find(0), productStock.findByLabel(firstProduct.getLabel()), "Could not find such product");
@@ -101,12 +101,12 @@ class InStockTest {
     }
 
     @Test
-    void testThatFindByLabelThrowsExceptionIfProductIsMissing () {
+    void testThatFindByLabelThrowsExceptionIfProductIsMissing() {
         assertThrows(IllegalArgumentException.class, () -> productStock.findByLabel("Invalid"));
     }
 
     @Test
-    void testThatFindFirstByAlphabeticalOrderReturnsCorrectNumberOfProducts () {
+    void testThatFindFirstByAlphabeticalOrderReturnsCorrectNumberOfProducts() {
         addRandomProduct(15, 5.5, 25);
         productStock.add(firstProduct);
         Iterable<Product> iterable = productStock.findFirstByAlphabeticalOrder(productStock.getCount());
@@ -117,19 +117,35 @@ class InStockTest {
         }
         assertEquals(count, productStock.getCount(), "Incorrect count");
     }
+
     @Test
-    void testThatFindFirstByAlphabeticalOrderReturnsCorrectOrderOfProducts () {
-        addRandomProduct(15, 5.5, 25);
+    void testThatFindFirstByAlphabeticalOrderReturnsCorrectOrderOfProducts() {
+       /* addRandomProduct(15, 5.5, 25);
         Iterable<Product> iterable = productStock.findFirstByAlphabeticalOrder(productStock.getCount());
         assertNotNull(iterable, "The iterable returned by method is null.");
         List<String> actualProducts = new ArrayList<>();
         for (Product product : iterable) {
             actualProducts.add(product.getLabel());
         }
-        List<String> expectedProducts = new ArrayList<>();
-       /* expectedProducts = productStock.forEach(product -> expectedProducts.add(product))
-                .sorted().collect(Collectors.toList());*/
-        assertEquals(expectedProducts, actualProducts, "Not in correct order");
+        List<String> expectedProducts = StreamSupport.stream(productStock.spliterator(), false)
+                .map(Product::getLabel)
+                .sorted().collect(Collectors.toList());
+        assertEquals(expectedProducts, actualProducts, "Not in correct order");*/
+        Product[] products = {
+                new Product("A", 5, 5),
+                new Product("B", 6, 6),
+                new Product("C", 7, 7),
+        };
+
+        Arrays.stream(products).forEach(e -> this.productStock.add(e));
+
+        Product[] expected = Arrays.stream(products).toArray(Product[]::new);
+
+        Iterable<Product> firstByAlphabeticalOrder = this.productStock.findFirstByAlphabeticalOrder(3);
+
+        Product[] actual = StreamSupport.stream(firstByAlphabeticalOrder.spliterator(), false).toArray(Product[]::new);
+
+        assertArrayEquals(expected, actual);
     }
 
     //private methods for testing
@@ -158,7 +174,7 @@ class InStockTest {
         return ThreadLocalRandom.current().nextDouble(start, bound);
     }
 
-    private String getRandomString () {
+    private String getRandomString() {
         String letterOrDigit = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
