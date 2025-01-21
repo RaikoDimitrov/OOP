@@ -3,8 +3,12 @@ package TestDrivenDevelopment.productTracking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,21 +75,29 @@ class InStockTest {
     @Test
     void testThatCanChangeQuantityIfProductInStock () {
         productStock.add(firstProduct);
-        productStock.changeQuantity(NAMES[0], 40);
-        int newQuantity = productStock.find(0).getQuantity();
-        assertEquals(40, newQuantity, "Did not change quantity");
+        int newQuantity = firstProduct.getQuantity() + 15;
+        productStock.changeQuantity(firstProduct.getLabel(), newQuantity);
+        assertEquals(newQuantity, firstProduct.getQuantity(), "Did not change quantity");
     }
 
     @Test
     void testThatChangeQuantityThrowsExceptionIfProductIsMissing () {
-        assertThrows(IllegalArgumentException.class, () -> productStock.changeQuantity(NAMES[0], 40));
+        assertThrows(IllegalArgumentException.class, () ->
+                productStock.changeQuantity(firstProduct.getLabel(),firstProduct.getQuantity() + 15));
     }
 
     @Test
     void testThatFindByLabelReturnsProductInStock () {
-        productStock.add(firstProduct);
+       /* productStock.add(firstProduct);
         productStock.add(secondProduct);
         assertEquals(productStock.find(0), productStock.findByLabel(firstProduct.getLabel()), "Could not find such product");
+*/
+        addRandomProduct(10, 5.5, 15);
+        String expectedLabel = productStock.find(2).getLabel();
+        Product byLabel = productStock.findByLabel(expectedLabel);
+        assertNotNull(byLabel);
+        String actualLabel = byLabel.getLabel();
+        assertEquals(expectedLabel, actualLabel, "Label not matching");
     }
 
     @Test
@@ -93,12 +105,44 @@ class InStockTest {
         assertThrows(IllegalArgumentException.class, () -> productStock.findByLabel("Invalid"));
     }
 
+    @Test
+    void testThatFindFirstByAlphabeticalOrderReturnsCorrectNumberOfProducts () {
+        addRandomProduct(15, 5.5, 25);
+        productStock.add(firstProduct);
+        Iterable<Product> iterable = productStock.findFirstByAlphabeticalOrder(productStock.getCount());
+        assertNotNull(iterable);
+        int count = 0;
+        for (Product product : iterable) {
+            count++;
+        }
+        assertEquals(count, productStock.getCount(), "Incorrect count");
+    }
+    @Test
+    void testThatFindFirstByAlphabeticalOrderReturnsCorrectOrderOfProducts () {
+        addRandomProduct(15, 5.5, 25);
+        Iterable<Product> iterable = productStock.findFirstByAlphabeticalOrder(productStock.getCount());
+        assertNotNull(iterable, "The iterable returned by method is null.");
+        List<String> actualProducts = new ArrayList<>();
+        for (Product product : iterable) {
+            actualProducts.add(product.getLabel());
+        }
+        List<String> expectedProducts = new ArrayList<>();
+       /* expectedProducts = productStock.forEach(product -> expectedProducts.add(product))
+                .sorted().collect(Collectors.toList());*/
+        assertEquals(expectedProducts, actualProducts, "Not in correct order");
+    }
+
     //private methods for testing
     //create and add products
-    private void addRandomProduct(int count, double price, int quantity) {
+    private List<Product> addRandomProduct(int count, double price, int quantity) {
+        List<Product> productList = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            this.productStock.add(randomProductFactory(getRandomString(), price, quantity));
+            Product product = randomProductFactory(getRandomString(), price, quantity);
+            this.productStock.add(product);
+            productList.add(product);
         }
+        return productList;
+
     }
 
     private Product randomProductFactory(String name, double price, int quantity) {

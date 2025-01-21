@@ -1,6 +1,7 @@
 package TestDrivenDevelopment.productTracking;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InStock implements ProductStock {
 
@@ -46,15 +47,20 @@ public class InStock implements ProductStock {
 
     @Override
     public Product findByLabel(String label) {
-        if (!this.products.containsKey(label)) {
-            throw new IllegalArgumentException("Product missing: " + label);
-        }
-        return this.products.get(label);
+        List<Product> productList = new ArrayList<>(this.products.values());
+        return productList.stream()
+                .filter(p -> p.getLabel().equals(label))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Product missing: " + label));
     }
 
     @Override
     public Iterable<Product> findFirstByAlphabeticalOrder(int count) {
-        return null;
+        List<Product> productList = new ArrayList<>(this.products.values());
+        return productList.stream()
+                .limit(count)
+                .sorted(Comparator.comparing(Product::getLabel))
+                .collect(Collectors.toList());
     }
 
     @Override

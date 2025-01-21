@@ -20,10 +20,11 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.2</version>
                 <configuration>
+                    <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
                     <dependenciesToScan>
                         org.mockito
                     </dependenciesToScan>
-                    <argLine>-javaagent:C:/Users/UserE1/.m2/repository/org/mockito/mockito-core/5.15.2/mockito-core-5.15.2.jar</argLine>
+                    <argLine>-javaagent:C:/Users/Acer_E1/.m2/repository/org/mockito/mockito-core/5.15.2/mockito-core-5.15.2.jar</argLine>
                 </configuration>
             </plugin>
         </plugins>
