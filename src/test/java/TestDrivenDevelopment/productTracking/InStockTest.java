@@ -29,14 +29,14 @@ class InStockTest {
     }
 
     @Test
-    void testThatReturnsFalseWhenProductIsAbsentAndTrueWhenAdded() {
+    void testThatReturnsFalseWhenProductIsAbsentAndTrueWhenAdded () {
         assertFalse(productStock.contains(firstProduct));
         productStock.add(firstProduct);
         assertTrue(productStock.contains(firstProduct));
     }
 
     @Test
-    void testThatCountReturnsZeroWhenEmptyAndNonZeroWhenProductsAdded() {
+    void testThatCountReturnsZeroWhenEmptyAndNonZeroWhenProductsAdded () {
         assertEquals(ZERO_SIZE, productStock.getCount());
         productStock.add(firstProduct);
         productStock.add(secondProduct);
@@ -45,21 +45,52 @@ class InStockTest {
     }
 
     @Test
-    void testThatFindByIndexReturnsCorrectIndexElement() {
+    void testThatFindByIndexReturnsCorrectIndexElement () {
         productStock.add(firstProduct);
         productStock.add(secondProduct);
-        assertEquals(secondProduct.getLabel(), productStock.find(1).getLabel(), "Invalid index element");
+        assertEquals(secondProduct, productStock.find(1), "Invalid index element");
     }
 
     @Test
-    void testThatFindByIndexThrowsExceptionWhenIndexIsGreater() {
-
+    void testThatFindByIndexThrowsExceptionWhenIndexIsGreater () {
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            addRandomProduct(10, getRandomPrice(0.5, 95.5), getRandomQuantity(50));
+            productStock.find(10);
+        });
 
     }
 
     @Test
-    void testThatFindByIndexThrowsExceptionWhenIndexIsNegative() {
+    void testThatFindByIndexThrowsExceptionWhenIndexIsNegative () {
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            addRandomProduct(10, getRandomPrice(0.5, 95.5), getRandomQuantity(50));
+            productStock.find(-2);
+        });
+    }
 
+    @Test
+    void testThatCanChangeQuantityIfProductInStock () {
+        productStock.add(firstProduct);
+        productStock.changeQuantity(NAMES[0], 40);
+        int newQuantity = productStock.find(0).getQuantity();
+        assertEquals(40, newQuantity, "Did not change quantity");
+    }
+
+    @Test
+    void testThatChangeQuantityThrowsExceptionIfProductIsMissing () {
+        assertThrows(IllegalArgumentException.class, () -> productStock.changeQuantity(NAMES[0], 40));
+    }
+
+    @Test
+    void testThatFindByLabelReturnsProductInStock () {
+        productStock.add(firstProduct);
+        productStock.add(secondProduct);
+        assertEquals(productStock.find(0), productStock.findByLabel(firstProduct.getLabel()), "Could not find such product");
+    }
+
+    @Test
+    void testThatFindByLabelThrowsExceptionIfProductIsMissing () {
+        assertThrows(IllegalArgumentException.class, () -> productStock.findByLabel("Invalid"));
     }
 
     //private methods for testing
@@ -83,7 +114,7 @@ class InStockTest {
         return ThreadLocalRandom.current().nextDouble(start, bound);
     }
 
-    private String getRandomString() {
+    private String getRandomString () {
         String letterOrDigit = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         StringBuilder sb = new StringBuilder();
         Random random = new Random();

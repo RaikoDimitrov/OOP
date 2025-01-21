@@ -1,9 +1,6 @@
 package TestDrivenDevelopment.productTracking;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class InStock implements ProductStock {
 
@@ -31,17 +28,28 @@ public class InStock implements ProductStock {
 
     @Override
     public void changeQuantity(String product, int quantity) {
+        if (!this.products.containsKey(product)) {
+            throw new IllegalArgumentException("Product missing: " + product);
+        }
+        this.products.get(product).setQuantity(quantity);
 
     }
 
     @Override
     public Product find(int index) {
-        return new ArrayList<>(this.products.values()).get(index);
+        List<Product> productList = new ArrayList<>(this.products.values());
+        if (index < 0 || index >= productList.size()) {
+            throw new IndexOutOfBoundsException("Invalid index: " + index);
+        }
+        return productList.get(index);
     }
 
     @Override
     public Product findByLabel(String label) {
-        return null;
+        if (!this.products.containsKey(label)) {
+            throw new IllegalArgumentException("Product missing: " + label);
+        }
+        return this.products.get(label);
     }
 
     @Override
