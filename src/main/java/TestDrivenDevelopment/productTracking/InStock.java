@@ -65,26 +65,42 @@ public class InStock implements ProductStock {
 
     @Override
     public Iterable<Product> findAllInRange(double lo, double hi) {
-        return null;
+
+        return this.products.values().stream()
+                .filter(product -> product.getPrice() > lo && product.getPrice() <= hi)
+                .sorted(Comparator.comparing(Product::getPrice).reversed())
+                .collect(Collectors.toList());
     }
 
     @Override
     public Iterable<Product> findAllByPrice(double price) {
-        return null;
+
+        return this.products.values().stream()
+                .filter(product -> product.getPrice() == price)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Iterable<Product> findFirstMostExpensiveProducts(int count) {
-        return null;
+        List<Product> productList = this.products.values().stream()
+                .sorted((p1, p2) -> Double.compare(p2.getPrice(), p1.getPrice()))
+                .limit(count)
+                .collect(Collectors.toList());
+        if (productList.size() < count) throw new IllegalArgumentException();
+        return productList;
     }
 
     @Override
     public Iterable<Product> findAllByQuantity(int quantity) {
-        return null;
+
+        return this.products.values().stream()
+                .filter(product -> product.getQuantity() == quantity)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Iterator<Product> iterator() {
-        return null;
+
+        return this.products.values().iterator();
     }
 }

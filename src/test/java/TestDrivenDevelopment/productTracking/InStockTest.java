@@ -3,11 +3,10 @@ package TestDrivenDevelopment.productTracking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -148,8 +147,162 @@ class InStockTest {
         assertArrayEquals(expected, actual);
     }
 
+    @Test
+    void testThatFindFirstByAlphabeticalOrderReturnsEmptyCollectionWhenOutOfRange() {
+        addRandomProduct(15, 5.5, 25);
+        Iterable<Product> iterable = productStock.findFirstByAlphabeticalOrder(productStock.getCount() + 1);
+        List<String> products = assertAndExtract(iterable, Product::getLabel);
+        assertTrue(products.isEmpty());
+    }
+
+    @Test
+    void testThatFindAllInRangeReturnsTheCorrectRange() {
+        Product[] products = {
+                new Product("A", 5.5, 5),
+                new Product("B", 50.5, 6),
+                new Product("C", 45.5, 7),
+        };
+        Arrays.stream(products).forEach(e -> this.productStock.add(e));
+        double start = products[0].getPrice();
+        double end = products[2].getPrice();
+        Iterable<Product> iterable = this.productStock.findAllInRange(start, end);
+        List<Double> returnedPrices = assertAndExtract(iterable, Product::getPrice);
+
+        assertEquals(1, returnedPrices.size());
+        Double actual = returnedPrices.get(0);
+        assertEquals(end, actual, 0.00);
+    }
+
+    @Test
+    void testThatFindAllInRangeReturnsTheCorrectRangeAndCorrectOrder() {
+        Product[] products = {
+                new Product("A", 5.5, 5),
+                new Product("B", 50.5, 6),
+                new Product("C", 45.5, 7),
+                new Product("D", 35.5, 7),
+        };
+        Arrays.stream(products).forEach(e -> this.productStock.add(e));
+        double start = products[0].getPrice();
+        double end = products[1].getPrice();
+        Iterable<Product> iterable = this.productStock.findAllInRange(start, end);
+        List<Double> returnedPrices = assertAndExtract(iterable, Product::getPrice);
+
+
+        List<Double> expected = StreamSupport.stream(iterable.spliterator(), false)
+                .map(Product::getPrice)
+                .filter(p -> p > start && p <= end)
+                .sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+        assertEquals(expected, returnedPrices);
+    }
+
+    @Test
+    void testThatFindAllInRangeReturnsEmptyCollectionWhenNoneMatch() {
+        Product[] products = {
+                new Product("A", 5.5, 5),
+                new Product("B", 50.5, 6),
+                new Product("C", 45.5, 7),
+                new Product("D", 35.5, 7),
+        };
+        Arrays.stream(products).forEach(e -> this.productStock.add(e));
+        double start = -10;
+        double end = -4;
+        Iterable<Product> iterable = this.productStock.findAllInRange(start, end);
+        List<Double> returnedPrices = assertAndExtract(iterable, Product::getPrice);
+
+        assertTrue(returnedPrices.isEmpty());
+    }
+
+    @Test
+    void testThatFindAllByPriceReturnsCorrectProducts() {
+        addRandomProduct(10, 13.3, getRandomQuantity(142));
+        addRandomProduct(25, getRandomPrice(0.0, 550.0), getRandomQuantity(50));
+        Iterable<Product> allByPrice = this.productStock.findAllByPrice(13.3);
+        assertNotNull(allByPrice);
+
+        long count = StreamSupport.stream(allByPrice.spliterator(), false).count();
+        assertEquals(10, count);
+    }
+
+    @Test
+    void testThatFindAllByPriceReturnsEmptyCollection() {
+        addRandomProduct(10, 13.3, getRandomQuantity(142));
+        addRandomProduct(25, 50.5, getRandomQuantity(50));
+        Iterable<Product> allByPrice = this.productStock.findAllByPrice(15.5);
+        List<Double> expectedEmpty = assertAndExtract(allByPrice, Product::getPrice);
+
+        long count = StreamSupport.stream(allByPrice.spliterator(), false).count();
+        assertEquals(0, count);
+        assertTrue(expectedEmpty.isEmpty());
+    }
+
+    @Test
+    void testThatFindAllByQuantityReturnsCorrectProducts() {
+        addRandomProduct(10, 13.3, 15);
+        Iterable<Product> allByQuantity = this.productStock.findAllByQuantity(15);
+        assertNotNull(allByQuantity);
+
+        long count = StreamSupport.stream(allByQuantity.spliterator(), false).count();
+        assertEquals(10, count);
+    }
+
+    @Test
+    void testThatFindAllByQuantityReturnsEmptyCollection() {
+        addRandomProduct(10, 13.3, 50);
+        Iterable<Product> allByQuantity = this.productStock.findAllByQuantity(15);
+        List<Integer> expectedEmpty = assertAndExtract(allByQuantity, Product::getQuantity);
+
+        long count = StreamSupport.stream(allByQuantity.spliterator(), false).count();
+        assertEquals(0, count);
+        assertTrue(expectedEmpty.isEmpty());
+    }
+
+    @Test
+    void testThatFindFirstMostExpensiveProductsThrowsExceptionIfLessThanCountExists() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            addRandomProduct(25, getRandomPrice(0.0, 550.0), getRandomQuantity(50));
+            this.productStock.findFirstMostExpensiveProducts(26);
+        });
+    }
+
+    @Test
+    void testThatIteratorReturnsCorrectValue() {
+        List<Product> productList = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            productList.add(randomProductFactory(getRandomString(),
+                    getRandomPrice(0.0, 555.5),
+                    getRandomQuantity(100)));
+        }
+        productList.forEach(productStock::add);
+        Product[] expected = productList.toArray(Product[]::new);
+        Product[] actual = StreamSupport.stream(productStock.spliterator(), false).toArray(Product[]::new);
+        assertNotNull(actual);
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    void testThatFindFirstMostExpensiveProductsReturnsCorrectValue() {
+        addRandomProduct(25, getRandomPrice(0.0, 550.0), getRandomQuantity(50));
+        Iterable<Product> firstMostExpensiveProducts = this.productStock.findFirstMostExpensiveProducts(15);
+        assertNotNull(firstMostExpensiveProducts);
+
+        long count = StreamSupport.stream(firstMostExpensiveProducts.spliterator(), false).count();
+        assertEquals(15, count);
+    }
+
     //private methods for testing
     //create and add products
+
+    private static <T> List<T> assertAndExtract(Iterable<Product> iterable, Function<Product, T> mapper) {
+        assertNotNull(iterable);
+        List<T> result = new ArrayList<>();
+        for (Product product : iterable) {
+            result.add(mapper.apply(product));
+        }
+        return result;
+    }
+
     private List<Product> addRandomProduct(int count, double price, int quantity) {
         List<Product> productList = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -158,7 +311,6 @@ class InStockTest {
             productList.add(product);
         }
         return productList;
-
     }
 
     private Product randomProductFactory(String name, double price, int quantity) {
